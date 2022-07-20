@@ -331,7 +331,7 @@ def run_conv2d(env, remote, wl, target, check_correctness=True, print_ir=False, 
         #myfile.write("\nSlot {} ".format(slot))
 
         print("starting polling subprocess")
-        proc = subprocess.Popen(["sshpass", "-p", "srivat95", "ssh", "-t", "xilinx@192.168.2.99", "sudo", "python3",
+        proc = subprocess.Popen(["sshpass", "-p", "Srivat95", "ssh", "-t", "xilinx@192.168.2.99", "sudo", "python3",
                              "/home/xilinx/tvm/vta/python/vta/poll_apm.py", "--slot", str(slot)], stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
         count = 0

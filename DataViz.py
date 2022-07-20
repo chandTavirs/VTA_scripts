@@ -26,45 +26,20 @@ def generate_boxplot(file_data):
     plt.show()
 
 
-def plot_write_bytes(file_data):
+def plot_bytes(file_data, slot, rOrW, plot_diff=False):
 
     data_list = []
-    for item in file_data:
-        data_list.append({"workload":item["workload_str"], "write_bytes":item["results"]['5']["overall"]["write_bytes"]})
+    if plot_diff:
+        diff_or_overall = "diff"
+    else:
+        diff_or_overall = "overall"
 
-    df = pd.DataFrame.from_dict(data_list)
-
-    fig, ax = plt.subplots()
-    df.plot('workload','write_bytes',kind='line', ax=ax)
-    for k,v in df.iterrows():
-
-        ax.annotate(v.write_bytes,[k,v.write_bytes])
-    plt.show()
-
-def plot_read_bytes(file_data):
-
-    data_list = []
-    for item in file_data:
-        data_list.append({"workload":item["workload_str"], "read_bytes":item["results"]['2']["overall"]["read_bytes"]})
-
-    df = pd.DataFrame.from_dict(data_list)
-
-    fig, ax = plt.subplots()
-
-    df.plot('workload', 'read_bytes', kind='line', ax=ax)
-    for k, v in df.iterrows():
-        ax.annotate(v.read_bytes, [k, v.read_bytes])
-    plt.show()
-
-def plot_bytes(file_data, slot, rOrW):
-
-    data_list = []
     for item in file_data:
         if rOrW == 'read':
-            data_list.append({"workload": item["workload_str"], "read_bytes": item["results"][slot]["overall"]["read_bytes"]})
+            data_list.append({"workload": item["workload_str"], "read_bytes": item["results"][slot][diff_or_overall]["read_bytes"]})
         else:
             data_list.append(
-                {"workload": item["workload_str"], "write_bytes": item["results"][slot]["overall"]["write_bytes"]})
+                {"workload": item["workload_str"], "write_bytes": item["results"][slot][diff_or_overall]["write_bytes"]})
 
     df = pd.DataFrame.from_dict(data_list)
 
@@ -100,6 +75,14 @@ if __name__ == "__main__":
                         help='generate plot of read bytes from compute uop of workloads')
     parser.add_argument('--plot_read_bytes_data', action='store_true',
                         help='generate plot of read bytes from compute data of workloads')
+    parser.add_argument('--plot_read_bytes_fetch', action='store_true',
+                        help='generate plot of read bytes from fetch data of workloads')
+    parser.add_argument('--plot_read_bytes_overall', action='store_true',
+                        help='generate plot of read bytes from overall data of workloads')
+    parser.add_argument('--plot_write_bytes_overall', action='store_true',
+                        help='generate plot of write bytes from overall data of workloads')
+    parser.add_argument('--plot_diff', action='store_true',
+                        help='plot diff instead of overall' )
     args = parser.parse_args()
 
     log_file = args.log_file
@@ -115,13 +98,22 @@ if __name__ == "__main__":
         generate_boxplot(data)
 
     if args.plot_write_bytes:
-        plot_bytes(data, '5', 'write')
+        plot_bytes(data, '5', 'write', args.plot_diff)
+
+    if args.plot_write_bytes_overall:
+        plot_bytes(data, '0', 'write', args.plot_diff)
 
     if args.plot_read_bytes:
-        plot_bytes(data, '2', 'read')
+        plot_bytes(data, '2', 'read', args.plot_diff)
+
+    if args.plot_read_bytes_overall:
+        plot_bytes(data, '0', 'read', args.plot_diff)
 
     if args.plot_read_bytes_uop:
-        plot_bytes(data,'3','read')
+        plot_bytes(data,'3','read', args.plot_diff)
 
     if args.plot_read_bytes_data:
-        plot_bytes(data,'4','read')
+        plot_bytes(data,'4','read', args.plot_diff)
+
+    if args.plot_read_bytes_fetch:
+        plot_bytes(data, '1', 'read', args.plot_diff)
